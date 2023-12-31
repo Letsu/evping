@@ -88,7 +88,7 @@ export default {
   async mounted() {
     this.loaded = false
     try {
-      const response = await axios.get('http://127.0.0.1:8080');
+      const response = await axios.get('http://127.0.0.1:8080/api/');
       console.log('Response data:', response.data);
       if (response.data[0].labels && response.data[0].data) {
         //this.chartData.labels = response.data[0].labels.map(label => {

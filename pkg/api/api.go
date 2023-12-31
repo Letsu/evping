@@ -1,10 +1,11 @@
 package api
 
 import (
+	"time"
+
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 	"github.com/letsu/evping/pkg/value"
-	"time"
 )
 
 func Router() {
@@ -21,4 +22,6 @@ func Router() {
 	api := r.Group("/api")
 	api.GET("/allhosts", value.GetHosts)
 	api.GET("/dataofhost", value.DataOfHost)
+
+	r.Run(":8081")
 }

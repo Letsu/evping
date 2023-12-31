@@ -4,11 +4,12 @@ import (
 	"encoding/csv"
 	"encoding/json"
 	"fmt"
-	probing "github.com/prometheus-community/pro-bing"
 	"log"
 	"net/http"
 	"os"
 	"time"
+
+	probing "github.com/prometheus-community/pro-bing"
 )
 
 type PingData struct {
@@ -141,7 +142,10 @@ func ping() {
 }
 
 func main() {
+	fmt.Println("Starting server...")
 	go ping()
-	http.HandleFunc("/", handler)
+	http.HandleFunc("/api/", handler)
+	fs := http.FileServer(http.Dir("website/dist"))
+	http.Handle("/", fs)
 	log.Fatal(http.ListenAndServe(":8080", nil))
 }

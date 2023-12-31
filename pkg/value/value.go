@@ -2,12 +2,13 @@ package value
 
 import (
 	"encoding/csv"
-	"github.com/gin-gonic/gin"
 	"log"
 	"net/http"
 	"os"
 	"strconv"
 	"time"
+
+	"github.com/gin-gonic/gin"
 )
 
 type structGetHosts struct {
@@ -46,7 +47,7 @@ func DataOfHost(c *gin.Context) {
 	if err != nil {
 		log.Fatalf("Failed to bind JSON to variable: %v", err)
 	}
-	for _, row := range inquiryHosts.IpAddresses {
-		//TODO Datei auslesen
-	}
+	// for _, row := range inquiryHosts.IpAddresses {
+	// 	//TODO Datei auslesen
+	// }
 }

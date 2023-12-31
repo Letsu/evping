@@ -1,6 +1,7 @@
 <template>
   <v-app>
-    <default-bar />
+    <default-navigation />
+    <!--<default-bar />-->
 
     <default-view />
   </v-app>
@@ -9,4 +10,5 @@
 <script setup>
   import DefaultBar from './AppBar.vue'
   import DefaultView from './View.vue'
+  import DefaultNavigation from './Navigation.vue'
 </script>
