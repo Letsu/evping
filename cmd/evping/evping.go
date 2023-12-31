@@ -1,21 +1,21 @@
 package main
 
 import (
-	"fmt"
-	"log"
-	"os"
-	"time"
-	"net/http"
 	"encoding/csv"
 	"encoding/json"
+	"fmt"
 	probing "github.com/prometheus-community/pro-bing"
+	"log"
+	"net/http"
+	"os"
+	"time"
 )
 
 type PingData struct {
-	Ip string `json:"ip"`
-	Host string `json:"host"`
+	Ip     string   `json:"ip"`
+	Host   string   `json:"host"`
 	Labels []string `json:"labels"`
-	Data []int `json:"data"`
+	Data   []int    `json:"data"`
 }
 
 func formatCsvData(data [][]string) PingData {
@@ -43,37 +43,39 @@ func handler(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Access-Control-Allow-Credentials", "true")
 	w.Header().Set("Access-Control-Allow-Headers", "Content-Type")
 	w.Header().Set("Access-Control-Allow-Methods", "GET, POST, OPTIONS")
-	f, _ := os.OpenFile("host.csv", os.O_RDONLY, 0755)
+	f, _ := os.OpenFile("hosts.csv", os.O_RDONLY, 0755)
 	cr := csv.NewReader(f)
 	data, _ := cr.ReadAll()
 
 	// Get the current time
-    now := time.Now()
+	now := time.Now()
 
-    // Filter the data to only include the last 10 minutes
-    var filteredData [][]string
+	// Filter the data to only include the last 10 minutes
+	var filteredData [][]string
 	var t time.Time
-    for _, row := range data {
-        // Parse the time from the first column
-        err := t.UnmarshalText([]byte(row[0]))
-        if err != nil {
-            log.Fatalf("Failed to parse time: %v", err)
-        }
+	for _, row := range data {
+		// Parse the time from the first column
+		err := t.UnmarshalText([]byte(row[0]))
+		if err != nil {
+			log.Fatalf("Failed to parse time: %v", err)
+		}
 
-        // If the time is within the last 10 minutes, add the row to filteredData
-        if now.Sub(t).Minutes() <= 5 {
-            filteredData = append(filteredData, row)
-        }
-    }
+		// If the time is within the last 10 minutes, add the row to filteredData
+		if now.Sub(t).Minutes() <= 5 {
+			filteredData = append(filteredData, row)
+		}
+	}
 
 	newData := []PingData{formatCsvData(filteredData)}
 	w.WriteHeader(http.StatusOK)
-    json.NewEncoder(w).Encode(newData)
+	json.NewEncoder(w).Encode(newData)
 }
 
 func ping() {
 	//tc qdisc replace dev eth0 root netem loss 25%
-	pinger, err := probing.NewPinger("")
+	pinger, err := probing.NewPinger("1.1.1.1")
+	//When on Windows must set the follow Line
+	pinger.SetPrivileged(true)
 	//pinger.Debug = true
 	if err != nil {
 		log.Fatal(err)
@@ -81,11 +83,11 @@ func ping() {
 	last := 0
 
 	pinger.OnSend = func(pkt *probing.Packet) {
-		if pkt.Seq - last > 1 {
+		if pkt.Seq-last > 1 {
 			for i := last + 1; i < pkt.Seq; i++ {
 				t := time.Now()
 				curTime, _ := t.MarshalText()
-				f, err := os.OpenFile("host.csv", os.O_RDWR|os.O_CREATE|os.O_APPEND, 0755)
+				f, err := os.OpenFile("hosts.csv", os.O_RDWR|os.O_CREATE|os.O_APPEND, 0755)
 				if err != nil {
 					log.Fatal(err)
 				}
@@ -102,7 +104,7 @@ func ping() {
 		last = pkt.Seq
 		t := time.Now()
 		curTime, _ := t.MarshalText()
-		f, err := os.OpenFile("host.csv", os.O_RDWR|os.O_CREATE|os.O_APPEND, 0755)
+		f, err := os.OpenFile("hosts.csv", os.O_RDWR|os.O_CREATE|os.O_APPEND, 0755)
 		if err != nil {
 			log.Fatal(err)
 		}
@@ -117,10 +119,10 @@ func ping() {
 		//	time.Now(), pkt.Nbytes, pkt.IPAddr, pkt.Seq, pkt.Rtt)
 	}
 
-	pinger.OnSendError = func(pkt *probing.Packet, err error) { 
+	pinger.OnSendError = func(pkt *probing.Packet, err error) {
 		t := time.Now()
 		curTime, _ := t.MarshalText()
-		f, err := os.OpenFile("host.csv", os.O_RDWR|os.O_CREATE|os.O_APPEND, 0755)
+		f, err := os.OpenFile("hosts.csv", os.O_RDWR|os.O_CREATE|os.O_APPEND, 0755)
 		if err != nil {
 			log.Fatal(err)
 		}
