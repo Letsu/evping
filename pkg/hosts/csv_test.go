@@ -237,3 +237,50 @@ func TestAddHost_FileNotExist(t *testing.T) {
 		t.Errorf("Expected host %v, but got %v", expectedHost, result[0])
 	}
 }
+
+func TestDeleteHost(t *testing.T) {
+	// Create a temporary hosts CSV file for testing
+	tempFile, err := os.CreateTemp("", "test_hosts.csv")
+	if err != nil {
+		t.Fatalf("Failed to create temporary file: %v", err)
+	}
+	defer os.Remove(tempFile.Name())
+
+	// Write test data to the temporary file
+	testData := []string{"192.168.0.1,10", "192.168.0.2,5", "192.168.0.3,15"}
+	for _, data := range testData {
+		_, err := tempFile.WriteString(data + "\n")
+		if err != nil {
+			t.Fatalf("Failed to write to temporary file: %v", err)
+		}
+	}
+
+	// Create a HostsCsv instance with the temporary file
+	hostsData := hosts.HostsCsv{File: tempFile.Name()}
+
+	// Call the DeleteHost function
+	delHost := "192.168.0.2"
+	err = hostsData.DeleteHost(delHost)
+	if err != nil {
+		t.Errorf("Unexpected error: %v", err)
+	}
+
+	// Read the hosts from the file
+	result, err := hostsData.GetHosts()
+	if err != nil {
+		t.Errorf("Unexpected error: %v", err)
+	}
+
+	// Assert the expected number of hosts
+	expectedCount := len(testData) - 1
+	if len(result) != expectedCount {
+		t.Errorf("Expected %d hosts, but got %d", expectedCount, len(result))
+	}
+
+	// Assert that the deleted host is not present
+	for _, host := range result {
+		if host.Host == delHost {
+			t.Errorf("Deleted host %v still exists in the file", delHost)
+		}
+	}
+}

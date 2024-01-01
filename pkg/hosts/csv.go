@@ -5,13 +5,14 @@ import (
 	"fmt"
 	"io"
 	"os"
-	"path/filepath"
 	"strconv"
 	"sync"
 )
 
+// HostsCsv represents a CSV file containing a list of hosts.
+// It implemates the Hosts interface.
 type HostsCsv struct {
-	File  string
+	File  string // The path to the CSV file where all hosts are stored
 	mutex sync.Mutex
 }
 
@@ -109,58 +110,50 @@ func (h *HostsCsv) AddHost(newHost Host) error {
 	return nil
 }
 
-// DeleteHost deletes a host from the hosts csv file
-// will return a error if the host dosent exists
+// DeleteHost deletes a host from the hosts CSV file.
+// It retrieves the existing hosts from the file, searches for the specified host to delete,
+// and removes it from the list of hosts. If the host is not found, it returns an error.
+// The function then opens the file, truncates its contents, and writes the updated list of hosts to the file.
+// The function uses a mutex to ensure concurrent-safe access to the shared resources.
 func (h *HostsCsv) DeleteHost(delHost string) error {
-	h.mutex.Lock()
-	defer h.mutex.Unlock()
-	// Check if file exists
-	absPath, err := filepath.Abs(h.File)
+	hosts, err := h.GetHosts()
 	if err != nil {
-		return err
-	}
-
-	if _, err := os.Stat(h.File); os.IsNotExist(err) {
-		return fmt.Errorf("host file not found: searched in %v", absPath)
-	}
-
-	// Open file
-	f, err := os.OpenFile(absPath, os.O_RDONLY, 0755)
-	if err != nil {
-		return err
-	}
-	defer f.Close()
-
-	// Read file, remove host and write file
-	data, err := csv.NewReader(f).ReadAll()
-	if err != nil {
-		return err
+		return fmt.Errorf("failed to get existing hosts: %v", err)
 	}
 
 	found := false
-	new_data := [][]string{}
-	for i, row := range data {
-		if row[0] == delHost {
+	updatedHosts := []Host{}
+	for i, host := range hosts {
+		if host.Host == delHost {
 			found = true
-			new_data = append(data[:i], data[i+1:]...)
+			updatedHosts = append(hosts[:i], hosts[i+1:]...)
 			break
 		}
 	}
+	fmt.Println(updatedHosts)
 
 	if !found {
 		return fmt.Errorf("host not found: %v", delHost)
 	}
 
-	// Write file
-	f, err = os.OpenFile(absPath, os.O_RDWR|os.O_CREATE|os.O_TRUNC, 0755)
+	h.mutex.Lock()
+	defer h.mutex.Unlock()
+
+	// Write new host file without the deleted host
+	f, err := os.OpenFile(h.File, os.O_RDWR|os.O_TRUNC, 0755)
 	if err != nil {
-		return err
+		return fmt.Errorf("failed to open file: %v", err)
 	}
-	defer f.Close()
 
 	w := csv.NewWriter(f)
-	w.WriteAll(new_data)
-	w.Flush()
+	defer w.Flush()
+	// Write updatedHosts
+	for _, host := range updatedHosts {
+		err = w.Write([]string{host.Host, strconv.Itoa(host.PingFrequency)})
+		if err != nil {
+			return fmt.Errorf("failed to write host to file: %v", err)
+		}
+	}
 
 	return nil
 }
