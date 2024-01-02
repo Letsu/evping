@@ -11,7 +11,7 @@ import (
 	probing "github.com/prometheus-community/pro-bing"
 )
 
-type Pinger interface {
+type Ping interface {
 	Ping(context.Context) error
 }
 
@@ -21,7 +21,7 @@ type PingerImpl struct {
 }
 
 // NewPinger
-func NewPinger(host string) Pinger {
+func NewPinger(host string) Ping {
 	return PingerImpl{
 		Privileged: true,
 	}

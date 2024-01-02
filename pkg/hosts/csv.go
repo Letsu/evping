@@ -32,7 +32,7 @@ func (h *HostsCsv) GetHosts() ([]Host, error) {
 			// Return an empty slice if the file doesn't exist
 			return []Host{}, nil
 		}
-		return nil, err
+		return nil, fmt.Errorf("error while opening file: %w", err)
 	}
 	defer f.Close()
 
@@ -45,13 +45,13 @@ func (h *HostsCsv) GetHosts() ([]Host, error) {
 			break
 		}
 		if err != nil {
-			return nil, err
+			return nil, fmt.Errorf("error while reading file: %w", err)
 		}
 
 		// Parse the row data
 		frequency, err := strconv.Atoi(row[1])
 		if err != nil {
-			return nil, err
+			return nil, fmt.Errorf("error while parsing row: %w", err)
 		}
 		host := Host{
 			Host:          row[0],
