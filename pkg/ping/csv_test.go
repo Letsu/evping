@@ -5,13 +5,15 @@ import (
 	"reflect"
 	"testing"
 	"time"
+	"path/filepath"
 
 	"github.com/letsu/evping/pkg/ping"
 )
 
 func TestGetPingData(t *testing.T) {
 	// Create a temporary CSV file for testing
-	tempFile, err := os.CreateTemp(t.TempDir(), "test_ping.csv")
+	tempDir := t.TempDir()
+	tempFile, err := os.Create(filepath.Join(tempDir, "example.com.csv"))
 	if err != nil {
 		t.Fatalf("Failed to create temporary file: %v", err)
 	}
@@ -27,7 +29,7 @@ func TestGetPingData(t *testing.T) {
 	}
 
 	// Create a PingCsv instance with the temporary folder
-	pingCsv := ping.PingCsv{Folder: t.TempDir()}
+	pingCsv := ping.PingCsv{Folder: tempDir}
 
 	// Test case: Retrieve ping data for an existing host
 	host := "example.com"
