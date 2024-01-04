@@ -2,16 +2,17 @@ package ping_test
 
 import (
 	"os"
+	"path/filepath"
 	"reflect"
 	"testing"
 	"time"
-	"path/filepath"
 
 	"github.com/letsu/evping/pkg/ping"
 )
 
 func TestGetPingData(t *testing.T) {
 	// Create a temporary CSV file for testing
+	// os.Create is used instead of os.CreateTemp because the latter puts random characters in the file name
 	tempDir := t.TempDir()
 	tempFile, err := os.Create(filepath.Join(tempDir, "example.com.csv"))
 	if err != nil {
