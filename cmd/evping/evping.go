@@ -76,7 +76,7 @@ func ping() {
 	//tc qdisc replace dev eth0 root netem loss 25%
 	pinger, err := probing.NewPinger("1.1.1.1")
 	//When on Windows must set the follow Line
-	pinger.SetPrivileged(true)
+	//pinger.SetPrivileged(true)
 	//pinger.Debug = true
 	if err != nil {
 		log.Fatal(err)
