@@ -27,6 +27,7 @@ func Router(host *hosts.HostsCsv) {
 	api.GET("/allhosts", value.GetHosts)
 	api.GET("/dataofhost", value.DataOfHost)
 	api.POST("/host", value.AddHost)
+	api.DELETE("/host", value.DeleteHost)
 
 	r.Run(":8081")
 }
