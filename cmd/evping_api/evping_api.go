@@ -1,11 +1,11 @@
 package main
 
 import (
-	"fmt"
 	"github.com/letsu/evping/pkg/api"
 	"github.com/letsu/evping/pkg/hosts"
 	"log"
 	"os"
+	"path/filepath"
 )
 
 func main() {
@@ -13,7 +13,9 @@ func main() {
 	if err != nil {
 		log.Fatalf("Error by getting the Working Directory: %v", err)
 	}
-	host := hosts.HostsCsv{File: fmt.Sprintf("%s/../../data/hosts.csv", wrkDir)}
+	pathToHostFile := filepath.Join(wrkDir, "..", "..", "data", "hosts.csv")
+	host := hosts.HostsCsv{File: pathToHostFile}
+	log.Println(host.File)
 
 	api.Router(&host)
 	//host.AddHost(hosts.Host{IpAddress: "1.1.1.1", PingFrequency: 10})
