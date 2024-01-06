@@ -10,6 +10,6 @@ type StructPingData struct {
 }
 
 type PingData interface {
-	GetPingData() ([]StructPingData, error)
+	GetPingData(string, time.Time, time.Time) ([]StructPingData, error)
 	AddPingData(StructPingData) error
 }
