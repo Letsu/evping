@@ -3,13 +3,14 @@ package value
 import (
 	"encoding/csv"
 	"fmt"
-	"github.com/letsu/evping/pkg/hosts"
 	"log"
 	"net/http"
 	"os"
 	"path/filepath"
 	"strings"
 	"time"
+
+	"github.com/letsu/evping/pkg/hosts"
 
 	"github.com/gin-gonic/gin"
 )
@@ -37,14 +38,12 @@ type structDeleteHost struct {
 	IpAddress string `json:"ip_address"`
 }
 
-func GetHosts(c *gin.Context) {
-	host, ok := c.MustGet("hostKey").(*hosts.HostsCsv)
-	if !ok {
-		log.Printf("Error by getting *hosts.HostsCsv")
-		c.AbortWithStatus(http.StatusInternalServerError)
-		c.Next()
-	}
-	listOfHost, err := host.GetHosts()
+type Router struct {
+	Hosts *hosts.Hosts
+}
+
+func (r Router) GetHosts(c *gin.Context) {
+	listOfHost, err := r.Hosts.GetHosts()
 	if err != nil {
 		log.Printf("Error by getting Hosts from CSV-File: %v", err)
 		c.AbortWithStatus(http.StatusInternalServerError)

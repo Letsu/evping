@@ -1,15 +1,16 @@
 package api
 
 import (
-	"github.com/letsu/evping/pkg/hosts"
 	"time"
+
+	"github.com/letsu/evping/pkg/hosts"
 
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 	"github.com/letsu/evping/pkg/value"
 )
 
-func Router(host *hosts.HostsCsv) {
+func Router(host *hosts.Hosts) {
 	r := gin.New()
 	r.Use(cors.New(cors.Config{
 		AllowOrigins:     []string{"*"},
@@ -22,9 +23,10 @@ func Router(host *hosts.HostsCsv) {
 
 	api := r.Group("/api")
 
-	api.Use(hostMiddleware(host))
+	//api.Use(hostMiddleware(host))
+	router := value.Router{Hosts: host}
 
-	api.GET("/allhosts", value.GetHosts)
+	api.GET("/allhosts", router.GetHosts)
 	api.GET("/dataofhost", value.DataOfHost)
 	api.POST("/host", value.AddHost)
 	api.DELETE("/host", value.DeleteHost)
