@@ -30,7 +30,6 @@ func (p *PingCsv) GetPingData(host string) ([]StructPingData, error) {
 	// Acquire the mutex lock for concurrent-safe access
 	p.mutex.Lock()
 	defer p.mutex.Unlock()
-
 	// Open the file for reading
 	filePath := filepath.Join(p.Folder, host+".csv")
 	f, err := os.OpenFile(filePath, os.O_RDONLY, 0755)
