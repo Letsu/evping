@@ -24,7 +24,7 @@ func main() {
 		if err != nil {
 			log.Fatalf("Error by getting the Working Directory: %v", err)
 		}
-		pathToHostFile := filepath.Join(wrkDir, "..", "..", "data", "hosts.csv")
+		pathToHostFile := filepath.Join(wrkDir, "data", "hosts.csv")
 		host = &hosts.HostsCsv{File: pathToHostFile}
 	}
 
