@@ -84,5 +84,9 @@ func (p *PingCsv) GetPingData(host string) ([]StructPingData, error) {
 }
 
 func (p *PingCsv) AddPingData(StructPingData) error {
+	// Write the ping data to the CSV file
+	p.mutex.Lock()
+	defer p.mutex.Unlock()
+
 	return nil
 }
